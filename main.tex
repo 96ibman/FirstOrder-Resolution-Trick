@@ -1,0 +1,212 @@
+\documentclass{article}
+\usepackage{booktabs}
+\usepackage{parskip}
+\usepackage{stmaryrd}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{titling}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{array}
+\begin{document}
+\section*{Question 1}
+Prove the following formula using Resolution Calculus:
+\[
+\exists X. \forall Y. \exists Z. \exists W. ((\neg P(Z) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(Y) \land R(X,b)))
+\]
+First, We label the formula with F and apply CNF rules.
+\[
+(\exists X. \forall Y. \exists Z. \exists W. ((\neg P(Z) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(Y) \land R(X,b))))^F
+\]
+
+We apply $\exists^F$
+\[
+X1 \notin \text{free}(\forall Y. \exists Z. \exists W. ((\neg P(Z) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(Y) \land R(X,b)))). \quad X1 \notin \{X\}
+\]
+\[
+    (\forall Y. \exists Z. \exists W. ((\neg P(Z) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(Y) \land R(X1,b))))^F
+\]
+We apply $\forall^F$
+
+\[
+\text{free}(\forall Y. \exists Z. \exists W. ((\neg P(Z) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(Y) \land R(X1,b)))) = \{X1\}
+\]
+\[
+    (\exists Z. \exists W. ((\neg P(Z) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(f(X1)) \land R(X1,b))))^F
+\]
+We apply $\exists^F$
+\[
+Z1 \notin
+\text{free}(\exists W. ((\neg P(Z) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(f(X1)) \land R(X1,b)))). \quad Z1 \notin \{ Z,X1 \}
+\]
+
+\[
+(\exists W. ((\neg P(Z1) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(f(X1)) \land R(X1,b))))^F
+\]
+We apply $\exists^F$
+\[
+W1 \notin \text{free}((\neg P(Z1) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(f(X1)) \land R(X1,b))). \quad W1 \notin \{Z1, W, X1\}
+\]
+This gives us:
+\[
+    ((\neg P(Z1) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W1,a) \lor (P(f(X1)) \land R(X1,b)))^F
+\]
+The formula is a bunch of ORs. To be False, we need all terms to be False.
+\[
+    (\neg P(Z1) \land \neg R(b,a))^F \land
+    (\neg R(a,b))^F \land
+    (R(W1,a))^F \land
+    (P(f(X1)) \land R(X1,b))^F
+\]
+For an AND to be False we need either one term to be False. And remember, $(\neg A)^F \equiv A^T$
+\[
+    (P(Z1)^T \lor R(b,a)^T) \land
+    R(a,b)^T \land
+    R(W1,a)^F \land
+    (P(f(X1))^F \lor R(X1,b)^F)
+\]
+
+Final clause set:
+\begin{tabular}{|l|c|} \hline
+    $P(Z1)^T \lor R(b,a)^T$ & 1 \\ \hline
+    $R(a,b)^T$ & 2 \\ \hline
+    $R(W1,a)^F$ & 3 \\ \hline
+    $P(f(X1))^F \lor R(X1,b)^F$ & 4 \\ \hline
+\end{tabular}
+Now we start resolving:
+\begin{itemize}
+    \item We resolve 2 with 4 under $\sigma = [a/X1]$ we get $P(f(a))^F$. (clause 5)
+    \item We resolve 5 with 1 under $\sigma = [a/Z1]$ we get $R(b,a)^T$ (clause 6)
+    \item We resolve 6 with 3 under $\sigma = [b/W1]$ we get $\{ \phi \}$
+\end{itemize}
+
+\newpage
+\subsection*{Explaining the Trick:}
+\[
+\exists X. \forall Y. \exists Z. \exists W. ((\neg P(Z) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(Y) \land R(X,b)))
+\]
+First, We negate.
+\[
+\neg (\exists X. \forall Y. \exists Z. \exists W. ((\neg P(Z) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(Y) \land R(X,b))))
+\]
+We push the negation inside:
+\[
+\forall X. \exists Y. \forall Z. \forall W. \neg ((\neg P(Z) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(Y) \land R(X,b)))
+\]
+A universally bounded Variable we leave as it is.
+An existentially bounded Variable is Skolemized.
+\begin{itemize}
+    \item If before $\exists$ there is a $\forall$ We Skolemize by new \text{function} taking the universally quantified variables before the $\exists$
+    \item If no $\forall$ before $\exists$, we just skolemize with a new Skolem constant
+\end{itemize}
+In our case, this leaves us with:
+\[
+\neg ((\neg P(Z) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(f(X)) \land R(X,b)))
+\]
+Which is equiv to 
+\[
+((\neg P(Z) \land \neg R(b,a)) \lor \neg R(a,b) \lor R(W,a) \lor (P(f(X)) \land R(X,b)))^F
+\]
+We continue as usual
+
+\textbf{Another Example:}
+\[
+\exists X.\forall Y.\exists W.\exists Z.\neg((R(Z,Y) \lor \neg P(Z))\land
+(\neg Q(d) \lor P(c)) \land
+(Q(d)\lor \neg P(c))\land
+(\neg R(Z,Y) \lor \neg P(W) \lor \neg Q(X))\land
+P(c)
+)
+\]
+We negate:
+\[
+\neg (\exists X.\forall Y.\exists W.\exists Z.\neg((R(Z,Y) \lor \neg P(Z))\land
+(\neg Q(d) \lor P(c)) \land
+(Q(d)\lor \neg P(c))\land
+(\neg R(Z,Y) \lor \neg P(W) \lor \neg Q(X))\land
+P(c)
+))
+\]
+We push negation inside:
+\[
+\forall X.\exists Y.\forall W.\forall Z. ((R(Z,Y) \lor \neg P(Z))\land
+(\neg Q(d) \lor P(c)) \land
+(Q(d)\lor \neg P(c))\land
+(\neg R(Z,Y) \lor \neg P(W) \lor \neg Q(X))\land
+P(c)
+)
+\]
+Skolemization:
+\[
+((R(Z,f(X)) \lor \neg P(Z))\land
+(\neg Q(d) \lor P(c)) \land
+(Q(d)\lor \neg P(c))\land
+(\neg R(Z,f(X)) \lor \neg P(W) \lor \neg Q(X))\land
+P(c)
+)^T
+\]
+For a bunch of ANDs to be true. All terms must be true.
+
+\[
+(R(Z,f(X)) \lor \neg P(Z))^T \land
+(\neg Q(d) \lor P(c))^T \land
+(Q(d)\lor \neg P(c))^T \land
+(\neg R(Z,f(X)) \lor \neg P(W) \lor \neg Q(X))^T \land
+P(c)^T
+\]
+The CNF form is:
+\[
+(R(Z,f(X))^T \lor P(Z)^F) \land
+(Q(d)^F \lor P(c)^T) \land
+(Q(d)^T \lor P(c)^F) \land
+(R(Z,f(X))^F \lor P(W)^F \lor Q(X)^F) \land
+P(c)^T
+\]
+
+\newpage
+\section*{Question 2 (Solved using the Trick)}
+Prove Using Resolution:
+\[
+\forall X \forall Y \forall Z \exists Z \exists U \exists V \exists W [(P(X,Y) \Rightarrow (P(Z,a)\Rightarrow R(a))) \Rightarrow ((P(U,V) \land P(W,a)) \Rightarrow R(a))]
+\]
+We Negate and push negation inside
+\[
+    \neg (\forall X \forall Y \forall Z \exists Z \exists U \exists V \exists W [(P(X,Y) \Rightarrow (P(Z,a)\Rightarrow R(a))) \Rightarrow ((P(U,V) \land P(W,a)) \Rightarrow R(a))])
+\]
+
+\[
+    \exists X \exists Y \exists Z \forall Z \forall U \forall V \forall W \neg [(P(X,Y) \Rightarrow (P(Z,a)\Rightarrow R(a))) \Rightarrow ((P(U,V) \land P(W,a)) \Rightarrow R(a))]
+\]
+
+We Skolemize:
+\[
+    [(P(c_x,c_y) \Rightarrow (P(c_z,a)\Rightarrow R(a))) \Rightarrow ((P(U,V) \land P(W,a)) \Rightarrow R(a))]^F
+\]
+\[
+    (P(c_x,c_y) \Rightarrow (P(c_z,a)\Rightarrow R(a)))^T \land
+    ((P(U,V) \land P(W,a)) \Rightarrow R(a))^F
+\]
+
+\[
+    (P(c_x,c_y)^F \lor (P(c_z,a)\Rightarrow R(a))^T) \land
+    ((P(U,V) \land P(W,a))^T \land R(a)^F)
+\]
+
+\[
+    (P(c_x,c_y)^F \lor P(c_z,a)^F \lor R(a)^T) \land
+    (P(U,V)^T \land P(W,a)^T \land R(a)^F)
+\]
+
+The clauses are:
+\begin{tabular}{|l|c|} \hline
+    $P(c_x,c_y)^F \lor P(c_z,a)^F \lor R(a)^T$ & 1 \\ \hline
+    $P(U,V)^T$ & 2 \\ \hline
+    $P(W,a)^T$ & 3 \\ \hline
+    $R(a)^F$ & 4 \\ \hline
+\end{tabular}
+\begin{itemize}
+    \item 1 with 2 with $\sigma=[c_x/U],[c_y/V] \to P(c_z,a)^F \lor R(a)^T$ (clause 5)
+    \item 5 with 3 with $\sigma=[c_z/W] \to R(a)^T$ (clause 6)
+    \item 6 with 4 $\to \{ \phi \}$
+\end{itemize}
+\end{document}
